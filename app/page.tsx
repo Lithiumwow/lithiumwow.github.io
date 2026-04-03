@@ -6,71 +6,19 @@ import { AudioWaveform } from '@/components/audio-waveform';
 export default function Home() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState('Trance 24x7 Stream');
-  const [loading, setLoading] = useState(false);
-  const [isUserActive, setIsUserActive] = useState(true);
+  const [currentTrack] = useState('Trance 24x7 Stream');
   const [volume, setVolume] = useState(0.7);
-  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Auto-play on mount
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-      audioRef.current.play().catch(() => {
+    const audioElement = audioRef.current;
+
+    if (audioElement) {
+      audioElement.volume = volume;
+      audioElement.play().catch(() => {
         console.log('Autoplay prevented by browser');
       });
     }
-
-    // Fetch metadata on mount
-    fetchMetadata();
-    const interval = setInterval(fetchMetadata, 10000); // Update every 10 seconds
-
-    // Track user activity
-    const handleUserActivity = () => {
-      setIsUserActive(true);
-      // Clear existing timeout
-      if (inactivityTimeoutRef.current) {
-        clearTimeout(inactivityTimeoutRef.current);
-      }
-      // Set new timeout for inactivity
-      inactivityTimeoutRef.current = setTimeout(() => {
-        setIsUserActive(false);
-      }, 30000); // 30 seconds of inactivity
-    };
-
-    // Listen for user activity
-    window.addEventListener('mousemove', handleUserActivity);
-    window.addEventListener('keydown', handleUserActivity);
-    window.addEventListener('click', handleUserActivity);
-    window.addEventListener('touchstart', handleUserActivity);
-
-    // Initial activity
-    handleUserActivity();
-
-    return () => {
-      clearInterval(interval);
-      if (inactivityTimeoutRef.current) {
-        clearTimeout(inactivityTimeoutRef.current);
-      }
-      window.removeEventListener('mousemove', handleUserActivity);
-      window.removeEventListener('keydown', handleUserActivity);
-      window.removeEventListener('click', handleUserActivity);
-      window.removeEventListener('touchstart', handleUserActivity);
-    };
   }, []);
-
-  const fetchMetadata = async () => {
-    try {
-      const response = await fetch(`/api/metadata?active=${isUserActive}`);
-      const data = await response.json();
-      setCurrentTrack(data.track || 'Trance 24x7 Stream');
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching metadata:', error);
-      setCurrentTrack('Unable to load track info');
-      setLoading(false);
-    }
-  };
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -78,7 +26,7 @@ export default function Home() {
         audioRef.current.pause();
       } else {
         audioRef.current.play().catch(() => {
-          setCurrentTrack('Error connecting to stream');
+          console.log('Unable to start playback');
         });
       }
       setIsPlaying(!isPlaying);
@@ -158,14 +106,6 @@ export default function Home() {
             )}
           </button>
 
-          {/* Refresh Metadata Button */}
-          <button
-            onClick={fetchMetadata}
-            className="w-full border border-accent/30 hover:border-accent/60 text-foreground py-2 px-4 rounded-xl transition-all duration-200 text-sm mb-6"
-          >
-            Refresh Metadata
-          </button>
-
           {/* Volume Control */}
           <div className="flex items-center gap-3">
             <svg
@@ -188,14 +128,6 @@ export default function Home() {
               {Math.round(volume * 100)}%
             </span>
           </div>
-
-          {/* Refresh Metadata Button */}
-          <button
-            onClick={fetchMetadata}
-            className="w-full border border-accent/30 hover:border-accent/60 text-foreground py-2 px-4 rounded-xl transition-all duration-200 text-sm"
-          >
-            Refresh Metadata
-          </button>
         </div>
 
         {/* Footer Info */}
