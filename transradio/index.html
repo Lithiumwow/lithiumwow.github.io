@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trance 24x7 - Lithiumwow</title>
+  <meta name="description" content="Stream continuous trance music 24/7" />
+  <style>
+    :root {
+      --bg: #070707;
+      --panel: #101010;
+      --fg: #efefef;
+      --muted: #9a9a9a;
+      --accent: #f60000;
+      --line: #1f1f1f;
+    }
+
+    body.light {
+      --bg: #f5f5f5;
+      --panel: #ffffff;
+      --fg: #161616;
+      --muted: #5f5f5f;
+      --accent: #ce0010;
+      --line: #d9d9d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 10%, #1c1c1c 0%, var(--bg) 50%), var(--bg);
+      color: var(--fg);
+      font-family: "Segoe UI", Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      transition: background 220ms ease, color 220ms ease;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid var(--line);
+      background: linear-gradient(160deg, color-mix(in srgb, var(--panel) 92%, transparent), var(--panel));
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 2.4rem;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+
+    .title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .wave-wrap {
+      border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      border-radius: 14px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent);
+      padding: 10px;
+      margin-bottom: 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 170px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--panel) 80%, transparent);
+    }
+
+    .hint {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    .now {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .now .label {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .now .track {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-top: 6px;
+      word-break: break-word;
+    }
+
+    .play {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px;
+      cursor: pointer;
+      transition: transform 120ms ease, filter 120ms ease;
+    }
+
+    .play:active { transform: scale(0.98); }
+    .play:hover { filter: brightness(1.06); }
+
+    .vol {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 24px 1fr 38px;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .foot {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="title">
+      <h1>Trance 24x7</h1>
+      <p>Lithiumwow</p>
+    </div>
+
+    <div class="wave-wrap" id="themeToggle" title="Click to switch dark/light mode">
+      <canvas id="wave" width="800" height="320"></canvas>
+      <div class="hint">Click waveform to toggle dark or light mode</div>
+    </div>
+
+    <section class="now">
+      <div class="label">Now Playing</div>
+      <div class="track">Trance 24x7 Stream</div>
+    </section>
+
+    <button class="play" id="playBtn">Play</button>
+
+    <div class="vol">
+      <span></span>
+      <input id="volume" type="range" min="0" max="1" step="0.01" value="0.7" />
+      <span id="volText">70%</span>
+    </div>
+
+    <div class="foot">Streaming 24/7 | Build 6092fed</div>
+
+    <audio id="radio" src="https://mscp4.live-streams.nl:8092/radio" preload="none" playsinline></audio>
+  </main>
+
+  <script>
+    (function () {
+      var audio = document.getElementById('radio');
+      var playBtn = document.getElementById('playBtn');
+      var volume = document.getElementById('volume');
+      var volText = document.getElementById('volText');
+      var canvas = document.getElementById('wave');
+      var toggle = document.getElementById('themeToggle');
+      var ctx = canvas.getContext('2d');
+
+      var playing = false;
+      var t = 0;
+      var bars = 42;
+
+      function setVolume(v) {
+        audio.volume = v;
+        volText.textContent = Math.round(v * 100) + '%';
+      }
+
+      setVolume(parseFloat(volume.value));
+
+      volume.addEventListener('input', function () {
+        setVolume(parseFloat(volume.value));
+      });
+
+      function paint() {
+        var w = canvas.width;
+        var h = canvas.height;
+        var bw = w / bars;
+        ctx.clearRect(0, 0, w, h);
+
+        var accent = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#f60000';
+        var mid = h / 2;
+
+        for (var i = 0; i < bars; i++) {
+          var phase = t * 0.12 + i * 0.45;
+          var base = Math.sin(phase) * 0.55 + Math.sin(phase * 0.6) * 0.45;
+          var motion = playing ? (Math.sin(t * 0.28 + i * 0.9) * 0.45 + 0.55) : 0.26;
+          var amp = (18 + Math.abs(base) * 108) * motion;
+
+          var x = i * bw + 2;
+          var y = mid - amp / 2;
+          var barW = Math.max(4, bw - 4);
+
+          ctx.fillStyle = accent;
+          ctx.globalAlpha = 0.9;
+          ctx.fillRect(x, y, barW, amp);
+
+          ctx.globalAlpha = 0.25;
+          ctx.fillRect(x, mid - 2, barW, 4);
+          ctx.globalAlpha = 1;
+        }
+
+        t += 1;
+        requestAnimationFrame(paint);
+      }
+
+      requestAnimationFrame(paint);
+
+      async function togglePlay() {
+        try {
+          if (!playing) {
+            await audio.play();
+            playing = true;
+            playBtn.textContent = 'Pause';
+          } else {
+            audio.pause();
+            playing = false;
+            playBtn.textContent = 'Play';
+          }
+        } catch (e) {
+          playBtn.textContent = 'Tap To Start';
+        }
+      }
+
+      playBtn.addEventListener('click', togglePlay);
+      audio.addEventListener('play', function () { playing = true; playBtn.textContent = 'Pause'; });
+      audio.addEventListener('pause', function () { playing = false; playBtn.textContent = 'Play'; });
+
+      if (localStorage.getItem('trance_theme') === 'light') {
+        document.body.classList.add('light');
+      }
+
+      toggle.addEventListener('click', function () {
+        document.body.classList.toggle('light');
+        localStorage.setItem('trance_theme', document.body.classList.contains('light') ? 'light' : 'dark');
+      });
+    })();
+  </script>
+</body>
+</html>
