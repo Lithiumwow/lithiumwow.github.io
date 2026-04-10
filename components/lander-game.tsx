@@ -1,6 +1,22 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  addLanderScore,
+  loadLanderLeaderboard,
+  qualifiesForTopThree,
+  type LanderLeaderboardEntry,
+} from '@/lib/lander-leaderboard';
 
 const CANVAS_WIDTH = 360;
 const CANVAS_HEIGHT = 520;
@@ -41,10 +57,16 @@ export function LanderGame() {
   const terrainRef = useRef<TerrainPoint[]>([]);
   const padRef = useRef({ start: 0, end: 0, y: 0 });
   const statusRef = useRef<GameStatus>('running');
+  const landingScoreRef = useRef(0);
 
   const [status, setStatus] = useState<GameStatus>('running');
   const [fuel, setFuel] = useState(100);
   const [velocity, setVelocity] = useState({ x: 0, y: 0 });
+  const [landId, setLandId] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<LanderLeaderboardEntry[]>([]);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveScore, setSaveScore] = useState(0);
+  const [pilotName, setPilotName] = useState('');
 
   const generateTerrain = () => {
     const points: TerrainPoint[] = [];
@@ -87,6 +109,8 @@ export function LanderGame() {
     setStatus('running');
     setFuel(100);
     setVelocity({ x: 0, y: 0 });
+    setSaveDialogOpen(false);
+    setPilotName('');
   };
 
   const getGroundY = (x: number) => {
@@ -237,8 +261,11 @@ export function LanderGame() {
           ship.y = groundY - SHIP_SIZE;
 
           if (safeLanding) {
+            const landingScore = Math.round(Math.max(0, ship.fuel) * 10) / 10;
+            landingScoreRef.current = landingScore;
             statusRef.current = 'landed';
             setStatus('landed');
+            setLandId((n) => n + 1);
             ship.vx = 0;
             ship.vy = 0;
           } else {
@@ -266,17 +293,69 @@ export function LanderGame() {
     };
   }, []);
 
+  useEffect(() => {
+    setLeaderboard(loadLanderLeaderboard());
+  }, []);
+
+  useEffect(() => {
+    if (landId === 0) return;
+    const score = landingScoreRef.current;
+    const entries = loadLanderLeaderboard();
+    if (qualifiesForTopThree(score, entries)) {
+      setSaveScore(score);
+      setSaveDialogOpen(true);
+    }
+  }, [landId]);
+
+  const handleSaveScore = () => {
+    const current = loadLanderLeaderboard();
+    const next = addLanderScore(pilotName, saveScore, current);
+    setLeaderboard(next);
+    setSaveDialogOpen(false);
+    setPilotName('');
+  };
+
   const setTouchControl = (key: 'left' | 'right' | 'thrust', value: boolean) => {
     touchRef.current[key] = value;
   };
 
   return (
     <section id="play-lander" className="bg-card border border-border rounded-2xl p-6 shadow-2xl">
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Top 3 score</DialogTitle>
+            <DialogDescription>
+              You landed with <span className="text-foreground font-medium">{saveScore}</span> fuel
+              remaining (higher is better). Save your name to the local leaderboard?
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder="Your name"
+            value={pilotName}
+            onChange={(e) => setPilotName(e.target.value)}
+            maxLength={24}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSaveScore();
+            }}
+            autoFocus
+          />
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={() => setSaveDialogOpen(false)}>
+              Skip
+            </Button>
+            <Button type="button" onClick={handleSaveScore}>
+              Save score
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
-          <h3 className="text-xl font-semibold text-card-foreground">Play Lander</h3>
+          <h3 className="text-xl font-semibold text-card-foreground">Artemis-style Lander</h3>
           <p className="text-sm text-muted-foreground">
-            Land softly on the green pad. Keep velocity low and angle near upright.
+            Land softly on the green pad. Score is fuel left; only top 3 can be saved to the board.
           </p>
         </div>
         <button
@@ -299,8 +378,35 @@ export function LanderGame() {
           Fuel: {Math.max(0, fuel).toFixed(0)}% | Vx: {velocity.x.toFixed(2)} | Vy:{' '}
           {velocity.y.toFixed(2)}
         </p>
-        {status === 'landed' && <p className="text-green-500 font-medium mt-2">Successful landing.</p>}
+        {status === 'landed' && (
+          <p className="text-green-500 font-medium mt-2">
+            Successful landing. Score: {Math.round(Math.max(0, fuel) * 10) / 10} fuel.
+          </p>
+        )}
         {status === 'crashed' && <p className="text-red-500 font-medium mt-2">Crash. Try again.</p>}
+      </div>
+
+      <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
+        <h4 className="text-sm font-semibold text-card-foreground mb-3">Leaderboard (top 3)</h4>
+        <p className="text-xs text-muted-foreground mb-3">
+          Stored on this device only. Beat 3rd place to get a save prompt.
+        </p>
+        {leaderboard.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No scores yet. Land with fuel to spare.</p>
+        ) : (
+          <ol className="space-y-2">
+            {leaderboard.map((e, i) => (
+              <li
+                key={`${e.at}-${i}`}
+                className="flex items-center justify-between gap-2 text-sm border-b border-border/60 pb-2 last:border-0 last:pb-0"
+              >
+                <span className="text-muted-foreground w-6 shrink-0">{i + 1}.</span>
+                <span className="flex-1 font-medium text-card-foreground truncate">{e.name}</span>
+                <span className="tabular-nums text-accent shrink-0">{e.score}</span>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2 max-w-[360px] mx-auto">

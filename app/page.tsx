@@ -1,8 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { AudioWaveform } from '@/components/audio-waveform';
-import { LanderGame } from '@/components/lander-game';
 
 export default function Home() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -78,15 +78,15 @@ export default function Home() {
             Trance 24x7
           </h1>
           <p className="text-lg text-muted-foreground font-light">Lithiumwow</p>
-          <a
-            href="#play-lander"
+          <Link
+            href="/games/lander/"
             className="inline-flex items-center gap-2 mt-3 text-sm text-accent hover:text-accent/80 transition-colors"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M11 2l6 5v9a4 4 0 01-4 4H7a4 4 0 01-4-4V7l6-5h2zm0 3.2L5 9v7a2 2 0 002 2h6a2 2 0 002-2V9l-6-3.8zM8.5 12.5l3.5-2 3.5 2-.9 1.6-2.6-1.5-2.6 1.5-.9-1.6z" />
             </svg>
             Play Lander
-          </a>
+          </Link>
         </div>
 
         {/* Main Player Card */}
@@ -162,8 +162,6 @@ export default function Home() {
         <div className="text-center mt-8 text-sm text-muted-foreground">
           <p>Streaming 24/7</p>
         </div>
-
-        <LanderGame />
       </div>
     </div>
   );
