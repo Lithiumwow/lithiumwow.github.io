@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  basePath: '/Trance-24x7',
-  assetPrefix: '/Trance-24x7/',
+  basePath: '/tranceradio',
+  assetPrefix: '/tranceradio/',
   trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,

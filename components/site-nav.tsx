@@ -2,9 +2,6 @@ import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 
-/** Main GitHub Pages site (sibling paths under the same user site). */
-const MAIN_SITE = 'https://lithiumwow.github.io';
-
 type SiteNavProps = {
   className?: string;
 };
@@ -31,10 +28,8 @@ export function SiteNav({ className }: SiteNavProps) {
         Lander
       </Link>
       <a
-        href={`${MAIN_SITE}/photography/`}
+        href="/photography/"
         className="text-muted-foreground transition-colors hover:text-accent"
-        target="_blank"
-        rel="noopener noreferrer"
       >
         Photography
       </a>
