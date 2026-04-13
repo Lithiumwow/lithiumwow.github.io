@@ -77,7 +77,7 @@ export default function Home() {
           <h1 className="text-5xl font-bold text-accent mb-2">
             Trance 24x7
           </h1>
-          <p className="text-lg text-muted-foreground font-light">Lithiumwow</p>
+          <p className="text-lg text-muted-foreground font-light">Harry Bradrocco</p>
           <Link
             href="/games/lander/"
             className="inline-flex items-center gap-2 mt-3 text-sm text-accent hover:text-accent/80 transition-colors"

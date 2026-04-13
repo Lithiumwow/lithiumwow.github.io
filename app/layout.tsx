@@ -9,7 +9,7 @@ const withBase = (path: string) => `${siteBasePath}${path}`
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://lithiumwow.github.io'),
-  title: 'Trance 24x7 - Lithiumwow',
+  title: 'Trance 24x7 - Harry Bradrocco',
   description: 'Stream continuous trance music 24/7',
   generator: 'v0.app',
   icons: {
