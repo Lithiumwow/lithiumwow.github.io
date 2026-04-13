@@ -1,20 +1,9 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SiteNav } from '@/components/site-nav'
 import { ThemeProvider } from '@/components/theme-provider'
 import { siteBasePath } from '@/lib/site-config'
 import './globals.css'
-
-const geistSans = Geist({
-  subsets: ['latin'],
-  variable: '--font-geist-sans',
-})
-
-const geistMono = Geist_Mono({
-  subsets: ['latin'],
-  variable: '--font-geist-mono',
-})
 
 const withBase = (path: string) => `${siteBasePath}${path}`
 
@@ -48,12 +37,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body className={`${geistSans.className} font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <SiteNav />
           {children}

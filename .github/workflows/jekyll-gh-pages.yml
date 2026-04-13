@@ -32,16 +32,20 @@ jobs:
           npm ci
           npm run build
           rsync -a --delete out/ tranceradio/
-          # upload-pages-artifact only excludes .git and .github when tarring; leaving
-          # node_modules (~50k files) caused partial publishes so /tranceradio stayed stale
-          # while the repo root updated. Strip build cruft before upload.
           rm -rf node_modules out .next
-          # Drop Next/TS source so the Pages tar stays small; huge artifacts caused partial
-          # deploys (stale /photography, /tranceradio, etc. on the CDN).
           rm -rf app components hooks lib styles public
           rm -f package.json package-lock.json tsconfig.json postcss.config.mjs \
             components.json next.config.mjs next-env.d.ts
           printf '%s %s\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > tranceradio/.deploy-revision
+          # Publish only the static site tree (tiny tar). Uploading the whole workspace led to
+          # partial GitHub Pages deploys: /tranceradio/index.html stayed on old HTML that
+          # referenced /Trance-24x7/_next/… so all CSS/JS 404'd and the theme broke.
+          mkdir -p _site
+          cp -a .nojekyll _site/
+          cp -a index.html LICENSE.txt README.txt _site/
+          for d in assets images photos photography transradio tranceradio radio tranceradio-live Trance-24x7; do
+            if [ -d "$d" ]; then cp -a "$d" _site/; fi
+          done
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -49,7 +53,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
   deploy:
     environment:
