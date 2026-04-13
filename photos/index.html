@@ -160,7 +160,7 @@
         var root = document.getElementById("gallery-root");
         if (!root) return;
 
-        fetch("gallery-manifest.json", { cache: "no-store" })
+        fetch("/photos/gallery-manifest.json", { cache: "no-store" })
           .then(function (r) {
             if (!r.ok) throw new Error("manifest");
             return r.json();
