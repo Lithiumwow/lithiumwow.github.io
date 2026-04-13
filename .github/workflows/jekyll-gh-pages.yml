@@ -27,6 +27,9 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Generate photo gallery manifest
+        run: node scripts/generate-gallery-manifest.mjs
+
       - name: Install and build Next export
         run: |
           npm ci

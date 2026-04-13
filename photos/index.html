@@ -85,6 +85,33 @@
       .fb-link a:hover {
         border-bottom-color: var(--accent);
       }
+      .upload-hint {
+        margin-top: 14px;
+        padding: 12px 14px;
+        font-size: 0.95rem;
+        line-height: 1.45;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid #2a4458;
+        border-radius: 12px;
+      }
+      .upload-hint code {
+        font-size: 0.88em;
+        color: var(--text);
+      }
+      .empty-gallery {
+        grid-column: 1 / -1;
+        margin: 0;
+        padding: 18px 16px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      .empty-gallery code {
+        color: var(--text);
+        font-size: 0.88em;
+      }
     </style>
   </head>
   <body>
@@ -101,45 +128,85 @@
               >Harry Bradrocco Photography on Facebook</a>
             — full albums and latest work.
           </p>
+          <p class="upload-hint">
+            Add photos to the repo folder <code>images/gallery/</code> (GitHub → Add file → Upload
+            files, or drag files locally), commit, and push. The gallery below lists every image in
+            that folder automatically after deploy.
+          </p>
         </div>
         <a class="back" href="/">Back Home</a>
       </div>
 
-      <div class="grid">
-        <figure class="card">
-          <img
-            src="/images/img_mountains_wide.jpg"
-            alt="Mountains"
-            width="1000"
-            height="350"
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption class="caption">Mountains</figcaption>
-        </figure>
-        <figure class="card">
-          <img
-            src="/images/img_nature_wide.jpg"
-            alt="Nature"
-            width="1000"
-            height="350"
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption class="caption">Nature</figcaption>
-        </figure>
-        <figure class="card">
-          <img
-            src="/images/img_snow_wide.jpg"
-            alt="Snow"
-            width="1000"
-            height="350"
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption class="caption">Snow</figcaption>
-        </figure>
-      </div>
+      <div id="gallery-root" class="grid" aria-live="polite"></div>
     </div>
+    <script>
+      (function () {
+        function humanize(file) {
+          var base = file.replace(/\.[^.]+$/, "") || file;
+          var s = base.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+          if (!s) return "Photo";
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function safeFileName(name) {
+          if (typeof name !== "string" || !name) return null;
+          var b = name.split("/").pop().split("\\").pop();
+          if (!b || b.indexOf("..") !== -1) return null;
+          if (/[\\/]/.test(b)) return null;
+          if (!/\.(jpe?g|png|gif|webp)$/i.test(b)) return null;
+          return b;
+        }
+
+        var root = document.getElementById("gallery-root");
+        if (!root) return;
+
+        fetch("gallery-manifest.json", { cache: "no-store" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("manifest");
+            return r.json();
+          })
+          .then(function (list) {
+            if (!Array.isArray(list) || !list.length) {
+              var p = document.createElement("p");
+              p.className = "empty-gallery";
+              p.innerHTML =
+                'No images in <code>images/gallery/</code> yet. Upload files there and push; the next deploy will show them here.';
+              root.appendChild(p);
+              return;
+            }
+            var frag = document.createDocumentFragment();
+            for (var i = 0; i < list.length; i++) {
+              var item = list[i];
+              var file = safeFileName(item && item.file);
+              if (!file) continue;
+              var cap =
+                typeof item.caption === "string" && item.caption.trim()
+                  ? item.caption.trim()
+                  : humanize(file);
+              var fig = document.createElement("figure");
+              fig.className = "card";
+              var img = document.createElement("img");
+              img.src = "/images/gallery/" + encodeURIComponent(file);
+              img.alt = cap;
+              img.loading = "lazy";
+              img.decoding = "async";
+              var fc = document.createElement("figcaption");
+              fc.className = "caption";
+              fc.textContent = cap;
+              fig.appendChild(img);
+              fig.appendChild(fc);
+              frag.appendChild(fig);
+            }
+            root.appendChild(frag);
+          })
+          .catch(function () {
+            var p = document.createElement("p");
+            p.className = "empty-gallery";
+            p.innerHTML =
+              'Could not load the gallery list. Run <code>npm run generate:gallery</code> locally or push so CI can build <code>gallery-manifest.json</code>.';
+            root.appendChild(p);
+          });
+      })();
+    </script>
   </body>
 </html>
