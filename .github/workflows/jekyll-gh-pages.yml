@@ -32,6 +32,11 @@ jobs:
           npm ci
           npm run build
           rsync -a --delete out/ tranceradio/
+          # upload-pages-artifact only excludes .git and .github when tarring; leaving
+          # node_modules (~50k files) caused partial publishes so /tranceradio stayed stale
+          # while the repo root updated. Strip build cruft before upload.
+          rm -rf node_modules out .next
+          printf '%s %s\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > tranceradio/.deploy-revision
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
