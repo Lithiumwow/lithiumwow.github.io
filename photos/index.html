@@ -7,10 +7,9 @@
     <link rel="canonical" href="https://lithiumwow.github.io/photos/" />
     <style>
       :root {
-        --bg: #0f1a24;
-        --panel: #122232;
+        --bg: #0a1218;
         --text: #e8f1f7;
-        --muted: #a9bfce;
+        --muted: #8aa3b5;
         --accent: #6ec5ff;
       }
       * {
@@ -18,127 +17,170 @@
       }
       body {
         margin: 0;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(160deg, #0d1822 0%, #102436 55%, #0b141f 100%);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
         color: var(--text);
+        min-height: 100vh;
       }
       .wrap {
-        max-width: 1100px;
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 28px 20px 40px;
+        padding: 20px 18px 48px;
       }
       .top {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 20px;
-      }
-      a.back {
-        color: var(--accent);
-        text-decoration: none;
-        border: 1px solid #2a4458;
-        padding: 8px 12px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.03);
+        gap: 12px;
+        margin-bottom: 24px;
       }
       h1 {
         margin: 0;
-        font-size: clamp(1.8rem, 2.2vw, 2.4rem);
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
+        font-weight: 600;
+        letter-spacing: 0.02em;
       }
-      p {
-        margin: 6px 0 0;
-        color: var(--muted);
-      }
-      .grid {
-        margin-top: 22px;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 16px;
-      }
-      .card {
-        background: var(--panel);
-        border: 1px solid #2a4458;
-        border-radius: 14px;
-        overflow: hidden;
-      }
-      .card img {
-        display: block;
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-      }
-      .caption {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-        color: var(--muted);
-      }
-      .fb-link {
-        margin-top: 10px;
-        font-size: 0.95rem;
-      }
-      .fb-link a {
+      a.back {
+        flex-shrink: 0;
         color: var(--accent);
         text-decoration: none;
-        border-bottom: 1px solid rgba(110, 197, 255, 0.35);
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(110, 197, 255, 0.25);
       }
-      .fb-link a:hover {
-        border-bottom-color: var(--accent);
+      a.back:hover {
+        background: rgba(110, 197, 255, 0.08);
       }
-      .upload-hint {
-        margin-top: 14px;
-        padding: 12px 14px;
-        font-size: 0.95rem;
-        line-height: 1.45;
-        color: var(--muted);
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid #2a4458;
-        border-radius: 12px;
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 8px;
       }
-      .upload-hint code {
-        font-size: 0.88em;
-        color: var(--text);
+      .thumb {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        cursor: zoom-in;
+        background: #111a22;
+        aspect-ratio: 1;
+      }
+      .thumb:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .thumb img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
       .empty-gallery {
         grid-column: 1 / -1;
-        margin: 0;
-        padding: 18px 16px;
         text-align: center;
         color: var(--muted);
         font-size: 0.95rem;
-        line-height: 1.5;
+        padding: 40px 16px;
       }
-      .empty-gallery code {
+      .foot {
+        margin-top: 32px;
+        text-align: center;
+      }
+      .foot a {
+        color: var(--muted);
+        font-size: 0.85rem;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+      }
+      .foot a:hover {
+        color: var(--accent);
+        border-bottom-color: rgba(110, 197, 255, 0.4);
+      }
+      /* Lightbox — no URL shown, caption optional */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(4, 8, 12, 0.94);
+        cursor: zoom-out;
+      }
+      .lightbox[hidden] {
+        display: none !important;
+      }
+      .lightbox-inner {
+        position: relative;
+        max-width: min(96vw, 1400px);
+        max-height: 92vh;
+        cursor: default;
+      }
+      .lightbox-inner img {
+        display: block;
+        max-width: min(96vw, 1400px);
+        max-height: 85vh;
+        width: auto;
+        height: auto;
+        margin: 0 auto;
+        object-fit: contain;
+        border-radius: 4px;
+      }
+      .lightbox-caption {
+        margin: 12px 0 0;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+        max-width: 56ch;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .lightbox-close {
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        z-index: 1001;
+        width: 44px;
+        height: 44px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
         color: var(--text);
-        font-size: 0.88em;
+        font-size: 1.5rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.14);
       }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <div class="top">
-        <div>
-          <h1>Photography</h1>
-          <p>Selected landscape shots.</p>
-          <p class="fb-link">
-            <a
-              href="https://www.facebook.com/harrybradroccophotography/"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Harry Bradrocco Photography on Facebook</a>
-            — full albums and latest work.
-          </p>
-          <p class="upload-hint">
-            Add photos to the repo folder <code>images/gallery/</code> (GitHub → Add file → Upload
-            files, or drag files locally), commit, and push. The gallery below lists every image in
-            that folder automatically after deploy.
-          </p>
-        </div>
-        <a class="back" href="/">Back Home</a>
-      </div>
+      <header class="top">
+        <h1>Photography</h1>
+        <a class="back" href="/">Home</a>
+      </header>
 
       <div id="gallery-root" class="grid" aria-live="polite"></div>
+
+      <footer class="foot">
+        <a href="https://www.facebook.com/harrybradroccophotography/" target="_blank" rel="noopener noreferrer">Facebook</a>
+      </footer>
     </div>
+
+    <div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Image preview">
+      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
+      <div class="lightbox-inner" id="lightbox-inner">
+        <img id="lightbox-img" alt="" />
+        <p class="lightbox-caption" id="lightbox-caption" hidden></p>
+      </div>
+    </div>
+
     <script>
       (function () {
         function humanize(file) {
@@ -158,6 +200,48 @@
         }
 
         var root = document.getElementById("gallery-root");
+        var lightbox = document.getElementById("lightbox");
+        var lightboxImg = document.getElementById("lightbox-img");
+        var lightboxCaption = document.getElementById("lightbox-caption");
+        var lightboxInner = document.getElementById("lightbox-inner");
+        var closeBtn = document.getElementById("lightbox-close");
+
+        function openLightbox(src, caption) {
+          lightboxImg.src = src;
+          lightboxImg.alt = caption || "Photo";
+          if (caption) {
+            lightboxCaption.textContent = caption;
+            lightboxCaption.hidden = false;
+          } else {
+            lightboxCaption.textContent = "";
+            lightboxCaption.hidden = true;
+          }
+          lightbox.hidden = false;
+          document.body.style.overflow = "hidden";
+          closeBtn.focus();
+        }
+
+        function closeLightbox() {
+          lightbox.hidden = true;
+          lightboxImg.removeAttribute("src");
+          document.body.style.overflow = "";
+        }
+
+        closeBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          closeLightbox();
+        });
+
+        lightbox.addEventListener("click", function (e) {
+          if (e.target === lightbox) closeLightbox();
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && !lightbox.hidden) {
+            closeLightbox();
+          }
+        });
+
         if (!root) return;
 
         fetch("/photos/gallery-manifest.json", { cache: "no-store" })
@@ -169,8 +253,7 @@
             if (!Array.isArray(list) || !list.length) {
               var p = document.createElement("p");
               p.className = "empty-gallery";
-              p.innerHTML =
-                'No images in <code>images/gallery/</code> yet. Upload files there and push; the next deploy will show them here.';
+              p.textContent = "No photos yet.";
               root.appendChild(p);
               return;
             }
@@ -183,27 +266,29 @@
                 typeof item.caption === "string" && item.caption.trim()
                   ? item.caption.trim()
                   : humanize(file);
-              var fig = document.createElement("figure");
-              fig.className = "card";
+              var src = "/images/gallery/" + encodeURIComponent(file);
+              var btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "thumb";
+              btn.setAttribute("aria-label", "View: " + cap);
               var img = document.createElement("img");
-              img.src = "/images/gallery/" + encodeURIComponent(file);
-              img.alt = cap;
+              img.src = src;
+              img.alt = "";
               img.loading = "lazy";
               img.decoding = "async";
-              var fc = document.createElement("figcaption");
-              fc.className = "caption";
-              fc.textContent = cap;
-              fig.appendChild(img);
-              fig.appendChild(fc);
-              frag.appendChild(fig);
+              img.draggable = false;
+              btn.appendChild(img);
+              btn.addEventListener("click", function () {
+                openLightbox(src, cap);
+              });
+              frag.appendChild(btn);
             }
             root.appendChild(frag);
           })
           .catch(function () {
             var p = document.createElement("p");
             p.className = "empty-gallery";
-            p.innerHTML =
-              'Could not load the gallery list. Run <code>npm run generate:gallery</code> locally or push so CI can build <code>gallery-manifest.json</code>.';
+            p.textContent = "Gallery unavailable.";
             root.appendChild(p);
           });
       })();
