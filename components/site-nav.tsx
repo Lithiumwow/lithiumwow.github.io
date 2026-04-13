@@ -28,7 +28,7 @@ export function SiteNav({ className }: SiteNavProps) {
         Lander
       </Link>
       <a
-        href="/photography/"
+        href="/photos/"
         className="text-muted-foreground transition-colors hover:text-accent"
       >
         Photography
