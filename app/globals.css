@@ -1,28 +1,29 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@custom-variant dark (&:is(.dark *));
+/* Match next-themes: class on <html>; include `.dark` so the root element matches `dark:` utilities */
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.6 0.3 30);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.3 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.6 0.3 30);
-  --accent-foreground: oklch(1 0 0);
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.55 0.22 30);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.96 0.01 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.55 0.22 30);
+  --accent-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.2 0 0);
-  --input: oklch(0.2 0 0);
-  --ring: oklch(0.6 0.3 30);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.55 0.22 30);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -75,8 +76,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-geist-sans), 'Geist', 'Geist Fallback';
+  --font-mono: var(--font-geist-mono), 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

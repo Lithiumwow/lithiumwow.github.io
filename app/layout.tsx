@@ -3,31 +3,42 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SiteNav } from '@/components/site-nav'
 import { ThemeProvider } from '@/components/theme-provider'
+import { siteBasePath } from '@/lib/site-config'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const geistSans = Geist({
+  subsets: ['latin'],
+  variable: '--font-geist-sans',
+})
+
+const geistMono = Geist_Mono({
+  subsets: ['latin'],
+  variable: '--font-geist-mono',
+})
+
+const withBase = (path: string) => `${siteBasePath}${path}`
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://lithiumwow.github.io'),
   title: 'Trance 24x7 - Lithiumwow',
   description: 'Stream continuous trance music 24/7',
   generator: 'v0.app',
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
+        url: withBase('/icon-light-32x32.png'),
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/icon-dark-32x32.png',
+        url: withBase('/icon-dark-32x32.png'),
         media: '(prefers-color-scheme: dark)',
       },
       {
-        url: '/icon.svg',
+        url: withBase('/icon.svg'),
         type: 'image/svg+xml',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: withBase('/apple-icon.png'),
   },
 }
 
@@ -37,8 +48,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className={`${geistSans.className} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <SiteNav />
           {children}

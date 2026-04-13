@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+/* Keep `basePath` aligned with `siteBasePath` in `lib/site-config.ts`. */
 const nextConfig = {
   output: 'export',
   basePath: '/tranceradio',

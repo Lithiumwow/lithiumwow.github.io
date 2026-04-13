@@ -2,7 +2,7 @@ name: Deploy static site to GitHub Pages
 
 on:
   push:
-    branches: ["master"]
+    branches: ['master']
   workflow_dispatch:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: true
 
 jobs:
@@ -20,6 +20,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install and build Next export
+        run: |
+          npm ci
+          npm run build
+          rsync -a --delete out/ tranceradio/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

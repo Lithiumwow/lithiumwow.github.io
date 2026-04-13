@@ -4,7 +4,7 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState, useRef } from 'react';
 
 export function AudioWaveform() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [bars, setBars] = useState<number[]>(Array(30).fill(0.3));
   const [isPlaying, setIsPlaying] = useState(false);
@@ -86,7 +86,7 @@ export function AudioWaveform() {
   }, [mounted, isPlaying]);
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
   if (!mounted) {
