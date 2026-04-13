@@ -258,20 +258,20 @@
               return;
             }
             var frag = document.createDocumentFragment();
-            for (var i = 0; i < list.length; i++) {
-              var item = list[i];
-              var file = safeFileName(item && item.file);
+            for (let i = 0; i < list.length; i++) {
+              const item = list[i];
+              const file = safeFileName(item && item.file);
               if (!file) continue;
-              var cap =
+              const cap =
                 typeof item.caption === "string" && item.caption.trim()
                   ? item.caption.trim()
                   : humanize(file);
-              var src = "/images/gallery/" + encodeURIComponent(file);
-              var btn = document.createElement("button");
+              const src = "/images/gallery/" + encodeURIComponent(file);
+              const btn = document.createElement("button");
               btn.type = "button";
               btn.className = "thumb";
               btn.setAttribute("aria-label", "View: " + cap);
-              var img = document.createElement("img");
+              const img = document.createElement("img");
               img.src = src;
               img.alt = "";
               img.loading = "lazy";
