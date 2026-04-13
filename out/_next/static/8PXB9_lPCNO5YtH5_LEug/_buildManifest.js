@@ -3,8 +3,8 @@ self.__BUILD_MANIFEST = {
     "afterFiles": [],
     "beforeFiles": [
       {
-        "source": "/Trance-24x7//_next/:path+",
-        "destination": "/Trance-24x7/_next/:path+"
+        "source": "/tranceradio//_next/:path+",
+        "destination": "/tranceradio/_next/:path+"
       }
     ],
     "fallback": []
