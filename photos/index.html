@@ -183,13 +183,6 @@
 
     <script>
       (function () {
-        function humanize(file) {
-          var base = file.replace(/\.[^.]+$/, "") || file;
-          var s = base.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
-          if (!s) return "Photo";
-          return s.charAt(0).toUpperCase() + s.slice(1);
-        }
-
         function safeFileName(name) {
           if (typeof name !== "string" || !name) return null;
           var b = name.split("/").pop().split("\\").pop();
@@ -208,7 +201,7 @@
 
         function openLightbox(src, caption) {
           lightboxImg.src = src;
-          lightboxImg.alt = caption || "Photo";
+          lightboxImg.alt = caption ? caption : "Photo";
           if (caption) {
             lightboxCaption.textContent = caption;
             lightboxCaption.hidden = false;
@@ -262,15 +255,16 @@
               const item = list[i];
               const file = safeFileName(item && item.file);
               if (!file) continue;
-              const cap =
+              const explicitCaption =
                 typeof item.caption === "string" && item.caption.trim()
                   ? item.caption.trim()
-                  : humanize(file);
+                  : "";
+              const thumbLabel = explicitCaption || "View photo";
               const src = "/images/gallery/" + encodeURIComponent(file);
               const btn = document.createElement("button");
               btn.type = "button";
               btn.className = "thumb";
-              btn.setAttribute("aria-label", "View: " + cap);
+              btn.setAttribute("aria-label", thumbLabel);
               const img = document.createElement("img");
               img.src = src;
               img.alt = "";
@@ -279,7 +273,7 @@
               img.draggable = false;
               btn.appendChild(img);
               btn.addEventListener("click", function () {
-                openLightbox(src, cap);
+                openLightbox(src, explicitCaption);
               });
               frag.appendChild(btn);
             }
